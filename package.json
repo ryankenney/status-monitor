@@ -1,0 +1,12 @@
+{
+  "name": "status-monitor",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^15.1.1",
+    "jest-cli": "^15.1.1"
+  },
+  "dependencies": {
+  }
+}
