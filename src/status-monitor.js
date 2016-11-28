@@ -21,7 +21,6 @@ var sampleReport = {
 };
 
 
-var errorLogger;
 
 var state = {
 		"backups.execute.git-repo":{
@@ -38,12 +37,30 @@ var state = {
 };
 */
 
+let config = {
+	points: {}
+};
+
+let status = {
+	points: {}
+};
+
+let logger = function(msg) {
+	console.log(msg);
+};
+
 // TODO [rkenney]: Load JS6 and use export here
 var StatusMonitor = {
 	
+	STATE_INITIAL: "INITIAL",
+	STATE_OK: "OK",
+	STATE_ERROR: "ERROR",
+	STATE_TIMEOUT: "TIMEOUT",
+
 	setConfig: function(newConfig) {
 		validateConfig(newConfig);
 		config = newConfig;
+		// TODO [rkenney]: Prune unfigured points from status
 	},
 
 	getConfig: function(newConfig) {
@@ -51,21 +68,20 @@ var StatusMonitor = {
 	},
 
 	reportStatus: function(report) {
-		let point = config.points[report.name];
+		ensurePointDefined(report.name);
+		pointStatus = status.points[report.name];
 
-		if (!point) {
+		switch (report.state) {
+		case StatusMonitor.STATE_OK:
+		case StatusMonitor.STATE_ERROR:
+			pointStatus.state = report.state;
+			pointStatus.lastReport[report.state] = StatusMonitor.timeProvider();
+			break;
+		case StatusMonitor.STATE_INITIAL:
+		case StatusMonitor.STATE_TIMEOUT:
 			// TODO [rkenney]: Sanitize this user input before logging
 			// ... to prevent log forging.
-			throw new Error("Invalid point '"+report.name+"'");
-		}
-
-		switch (report.status) {
-		case "OK":
-			point.lastReportOK = new Date();
-			break;
-		case "ERROR":
-			point.lastReportError = new Date();
-			break;
+			throw new Error("External callers cannot set state of point to '"+report.state+"'");
 		default:
 			// TODO [rkenney]: Sanitize this user input before logging
 			// ... to prevent log forging.
@@ -77,11 +93,35 @@ var StatusMonitor = {
 			// ... to skip sanitization of strings build by the system.
 			throw new Error("Invalid status '"+report.status+"' reported for point '"+report.name+"'");
 		}
-		point.lastReportOK = new Date();
 
 		// TODO [rkenney]: Sanitize this user input before logging
 		// ... to prevent log forging.
-		logger.log("Point '"+report.name+"' reported '"+report.status+"'");
+		logger("Point '"+report.name+"' reported '"+report.status+"'");
+	},
+
+	getStatus: function(pointName) {
+		ensurePointDefined(pointName);
+		return status.points[pointName];
+	},
+
+	timeProvider: function() {
+		return new Date();
+	}
+}
+
+function ensurePointDefined(pointName) {
+	let pointConfig = config.points[pointName];
+	if (!pointConfig) {
+		// TODO [rkenney]: Sanitize this user input before logging
+		// ... to prevent log forging.
+		throw new Error("Invalid point '"+pointName+"'");
+	}
+	let pointStatus = status.points[pointName];
+	if (!pointStatus) {
+		status.points[pointName] = {
+			state: StatusMonitor.STATE_INITIAL,
+			lastReport: {}
+		};
 	}
 }
 
