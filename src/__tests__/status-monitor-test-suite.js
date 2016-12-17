@@ -112,6 +112,15 @@ it('StatusMonitor.getStatus() - Verify initial state of point', () => {
 
 	// Verify
 	let pointStatus = StatusMonitor.getStatus("mock.point.initial");
+	// ... Point state
 	expect(pointStatus.state).toEqual(StatusMonitor.STATE_INITIAL);
-	expect(LangUtil.getPropertyCount(pointStatus.lastReport)).toEqual(0);
+	// ... Point has creation report, but no others
+	expect(LangUtil.getPropertyCount(pointStatus.lastReport)).toEqual(1);
+	expect(pointStatus.lastReport["INITIAL"])
 });
+
+it('StatusMonitor.refreshState() - Verify no effect if no timeout', () => {
+	// TODO [rkenney]: Implement
+	expect(0).toEqual(1);
+});
+

@@ -52,10 +52,21 @@ let logger = function(msg) {
 // TODO [rkenney]: Load JS6 and use export here
 var StatusMonitor = {
 	
+	/**
+	 * The state of the point before any status is reported and
+	 * the point has not timed out.
+	 */
 	STATE_INITIAL: "INITIAL",
+	/**
+	 * Indicates that the most recent report was OK and no
+	 * timeout has triggered since.
+	 */
 	STATE_OK: "OK",
+	/**
+	 * Indicates that the most recent report was an Error
+	 * or a timeout was triggered since the last OK report.
+	 */
 	STATE_ERROR: "ERROR",
-	STATE_TIMEOUT: "TIMEOUT",
 
 	setConfig: function(newConfig) {
 		validateConfig(newConfig);
@@ -78,7 +89,6 @@ var StatusMonitor = {
 			pointStatus.lastReport[report.state] = StatusMonitor.timeProvider();
 			break;
 		case StatusMonitor.STATE_INITIAL:
-		case StatusMonitor.STATE_TIMEOUT:
 			// TODO [rkenney]: Sanitize this user input before logging
 			// ... to prevent log forging.
 			throw new Error("External callers cannot set state of point to '"+report.state+"'");
@@ -104,6 +114,45 @@ var StatusMonitor = {
 		return status.points[pointName];
 	},
 
+	refreshTimeouts: function(pointName) {
+		forEachProperty(config.points, (point) => {
+			ensurePointDefined(point.name);
+			pointStatus = status.points[pointStatus];
+
+			switch (pointStatus.state) {
+			case StatusMonitor.STATE_OK:
+			case StatusMonitor.STATE_INITIAL:
+			case StatusMonitor.STATE_ERROR:
+				pointStatus.state = report.state;
+				pointStatus.lastReport[report.state] = StatusMonitor.timeProvider();
+				break;
+				// TODO [rkenney]: Sanitize this user input before logging
+				// ... to prevent log forging.
+				throw new Error("External callers cannot set state of point to '"+report.state+"'");
+			default:
+				// TODO [rkenney]: Sanitize this user input before logging
+				// ... to prevent log forging.
+				// TODO [rkenney]: Investigate whether js supports override of "+" serialization
+				// ... If it does, any sanitization should verify that it is a string first.
+				// TODO [rkenney]: Look into ovrriding the Error constructor with some sort
+				// ... of stringf() method that applies sanitization to the args.
+				// ... The new constructor could accept certain arguments as "new SafeArg(arg)"
+				// ... to skip sanitization of strings build by the system.
+				throw new Error("Invalid status '"+report.status+"' reported for point '"+report.name+"'");
+			}
+
+			if (!config.points[point].error_period) {
+				// TODO [rkenney]: Sanitize this user input before logging
+				// ... to prevent log forging.
+				throw Error("Config missing 'error_period' for '"+point+"' point.");
+			}
+		});
+
+
+		ensurePointDefined(pointName);
+		return status.points[pointName];
+	},
+
 	timeProvider: function() {
 		return new Date();
 	}
@@ -120,7 +169,9 @@ function ensurePointDefined(pointName) {
 	if (!pointStatus) {
 		status.points[pointName] = {
 			state: StatusMonitor.STATE_INITIAL,
-			lastReport: {}
+			lastReport: {
+				"INITIAL": StatusMonitor.timeProvider()
+			}
 		};
 	}
 }
