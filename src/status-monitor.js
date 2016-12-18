@@ -151,6 +151,9 @@ StatusMonitor.prototype.setConfig = function (newConfig) {
 	if (this.config.timeProvider) {
 		this.timeProvider = this.config.timeProvider;
 	}
+	if (this.config.logger) {
+		this.logger = this.config.logger;
+	}
 };
 
 StatusMonitor.prototype.getConfig = function() {
@@ -195,11 +198,9 @@ StatusMonitor.prototype.getStatus = function(pointName) {
 
 StatusMonitor.prototype.refreshTimeouts = function() {
 	forEachProperty(this.config.points, (point) => {
-
-		// TODO [rkenney]: Remove debug
-		console.log(JSON.stringify("Point: "+point));
-
 		this.ensurePointDefined(point);
+
+		let pointStatus = this.status.points[point];
 
 		// Continue if no timeout configured
 		let timeout = ParseDuration(this.config.points[point].error_period);
@@ -210,21 +211,22 @@ StatusMonitor.prototype.refreshTimeouts = function() {
 		let newState = this.STATE_ERROR;
 		if (this.hasReportWithinTimeout(point, this.STATE_OK)) {
 			newState = this.STATE_OK;
-		} else if (this.hasReportWithinTimeout(point, this.STATE_INITIAL)) {
+		} else if (
+			pointStatus.state == this.STATE_INITIAL &&
+			this.hasReportWithinTimeout(point, this.STATE_INITIAL)) {
 			newState = this.STATE_INITIAL;
 		} else {
 			newState = this.STATE_ERROR;
 		}
 
 		let oldState = this.status.points[point].state;
-		this.status.points[point].state = newState;
+		pointStatus.state = newState;
 
 		if (newState != oldState) {
-			this.stateChangeHandler(point.name, oldState, newState);
+			this.stateChangeHandler(point, oldState, newState);
 		}
 	});
 };
-
 
 // TODO [rkenney]: Remove if unused
 function forEachProperty(object, handler) {
