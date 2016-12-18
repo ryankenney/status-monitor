@@ -8,5 +8,6 @@
     "jest-cli": "^15.1.1"
   },
   "dependencies": {
+    "parse-duration": "^0.1.1"
   }
 }
