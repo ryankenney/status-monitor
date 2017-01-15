@@ -94,15 +94,15 @@ it('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK/E
 	sm.reportStatus({name:"mock.point.error",state:sm.STATE_ERROR});
 
 	// Verify
-	let pointStatus = sm.getStatus("mock.point.ok");
+	let pointStatus = sm.getPointStatus("mock.point.ok");
 	expect(pointStatus.state).toEqual(sm.STATE_OK);
 	expect(pointStatus.lastReport["OK"]).toEqual(new Date(100));
-	pointStatus = sm.getStatus("mock.point.error");
+	pointStatus = sm.getPointStatus("mock.point.error");
 	expect(pointStatus.state).toEqual(sm.STATE_ERROR);
 	expect(pointStatus.lastReport["ERROR"]).toEqual(new Date(200));
 });
 
-it('StatusMonitor.getStatus() - Verify initial state of point', () => {
+it('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
 	// Setup
 	let config = {
 		points: {
@@ -114,7 +114,7 @@ it('StatusMonitor.getStatus() - Verify initial state of point', () => {
 	sm.setConfig(config);
 
 	// Verify
-	let pointStatus = sm.getStatus("mock.point.initial");
+	let pointStatus = sm.getPointStatus("mock.point.initial");
 	// ... Point state
 	expect(pointStatus.state).toEqual(sm.STATE_INITIAL);
 	// ... Point has creation report, but no others
@@ -145,7 +145,7 @@ it('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 
 	// Verify
 	// ... State not changed
-	let pointStatus = sm.getStatus("mock.point.initial");
+	let pointStatus = sm.getPointStatus("mock.point.initial");
 	expect(pointStatus.state).toEqual(sm.STATE_INITIAL);
 	// ... State change handler not called
 	expect(stateChanges.length).toEqual(0);
@@ -174,7 +174,7 @@ it('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if with
 
 	// Verify
 	// ... State not changed
-	let pointStatus = sm.getStatus("mock.point.initial");
+	let pointStatus = sm.getPointStatus("mock.point.initial");
 	expect(pointStatus.state).toEqual(sm.STATE_INITIAL);
 	// ... State change handler not called
 	expect(stateChanges.length).toEqual(0);
@@ -203,7 +203,7 @@ it('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeout
 
 	// Verify
 	// ... State changed to ERROR
-	let pointStatus = sm.getStatus("mock.point.initial");
+	let pointStatus = sm.getPointStatus("mock.point.initial");
 	expect(pointStatus.state).toEqual(sm.STATE_ERROR);
 	// ... State change handler called
 	expect(stateChanges[0].pointName).toEqual("mock.point.initial");
@@ -236,7 +236,7 @@ it('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', ()
 
 	// Verify
 	// ... State changed to ERROR
-	let pointStatus = sm.getStatus("mock.point.initial");
+	let pointStatus = sm.getPointStatus("mock.point.initial");
 	expect(pointStatus.state).toEqual(sm.STATE_ERROR);
 	// ... State change handler called
 	expect(stateChanges[0].pointName).toEqual("mock.point.initial");
@@ -277,30 +277,30 @@ it('StatusMonitor.refreshState() - State transitions', () => {
 	stateChanges = [];
 
 	// Verify initial state
-	expect(sm.getStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
-	expect(sm.getStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_INITIAL);
-	expect(sm.getStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_INITIAL);
-	expect(sm.getStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
-	expect(sm.getStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_OK);
-	expect(sm.getStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_OK);
-	expect(sm.getStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
 
 	// Execute/verify
 	time += ParseDuration("90m");
 	sm.refreshTimeouts();
-	expect(sm.getStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
 	// ... Newly expired point INITIAL -> ERROR
-	expect(sm.getStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_INITIAL);
-	expect(sm.getStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
 	// ... Newly expired point OK -> ERROR
-	expect(sm.getStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_OK);
-	expect(sm.getStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
 	// ... State changes
 	expectedStateChanges = [
 		{pointName: "initial.state.1h.timeout", oldState: sm.STATE_INITIAL, newState: sm.STATE_ERROR},
@@ -312,17 +312,17 @@ it('StatusMonitor.refreshState() - State transitions', () => {
 	// Execute/verify
 	time += ParseDuration("1h");
 	sm.refreshTimeouts();
-	expect(sm.getStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
-	expect(sm.getStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("initial.state.no.timeout").state).toEqual(sm.STATE_INITIAL);
+	expect(sm.getPointStatus("initial.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
 	// ... Newly expired point INITIAL -> ERROR
-	expect(sm.getStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
-	expect(sm.getStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("initial.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("ok.state.no.timeout").state).toEqual(sm.STATE_OK);
+	expect(sm.getPointStatus("ok.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
 	// ... Newly expired point OK -> ERROR
-	expect(sm.getStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
-	expect(sm.getStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("ok.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.no.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.1h.timeout").state).toEqual(sm.STATE_ERROR);
+	expect(sm.getPointStatus("error.state.2h.timeout").state).toEqual(sm.STATE_ERROR);
 	// ... State changes
 	expectedStateChanges = [
 		{pointName: "initial.state.2h.timeout", oldState: sm.STATE_INITIAL, newState: sm.STATE_ERROR},

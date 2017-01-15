@@ -191,7 +191,11 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	this.logger("Point '"+report.name+"' reported '"+report.status+"'");
 };
 
-StatusMonitor.prototype.getStatus = function(pointName) {
+StatusMonitor.prototype.getStatus = function() {
+	return this.status;
+};
+
+StatusMonitor.prototype.getPointStatus = function(pointName) {
 	this.ensurePointDefined(pointName);
 	return this.status.points[pointName];
 };

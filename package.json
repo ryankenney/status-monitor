@@ -7,8 +7,12 @@
     "jest": "^15.1.1",
     "jest-cli": "^15.1.1"
   },
+  "//": "promise.prototype.finally included until Node support Promise.finally() natively",
   "dependencies": {
     "deep-diff": "^0.3.4",
-    "parse-duration": "^0.1.1"
+    "express": "^4.14.0",
+    "node-rest-client": "^2.0.1",
+    "parse-duration": "^0.1.1",
+    "promise.prototype.finally": "^2.0.1"
   }
 }
