@@ -9,6 +9,7 @@
   },
   "//": "promise.prototype.finally included until Node support Promise.finally() natively",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "deep-diff": "^0.3.4",
     "express": "^4.14.0",
     "node-rest-client": "^2.0.1",

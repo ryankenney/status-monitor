@@ -3,7 +3,7 @@ var StatusMonitor = require('../status-monitor.js');
 var ParseDuration = require('parse-duration')
 var DeepDiff = require('deep-diff')
 
-it('StatusMonitor.setConfig() - Verify fails on missing points.', () => {
+test('StatusMonitor.setConfig() - Verify fails on missing points.', () => {
 	let config = {
 	};
 	try {
@@ -14,7 +14,7 @@ it('StatusMonitor.setConfig() - Verify fails on missing points.', () => {
 	}
 });
 
-it('StatusMonitor.setConfig() - Verify fails on missing error_period.', () => {
+test('StatusMonitor.setConfig() - Verify fails on missing error_period.', () => {
 	let config = {
 		points: {
 			"mock.point.with.error_period":{error_period: "1d"},
@@ -30,7 +30,7 @@ it('StatusMonitor.setConfig() - Verify fails on missing error_period.', () => {
 });
 
 // TODO [rkenney]: Do a deep clone on import (when "..." available through JS6)
-// it('StatusMonitor.setConfig() - Verify clones data on import', () => {
+// test('StatusMonitor.setConfig() - Verify clones data on import', () => {
 // 	let config = {
 // 		points: {
 // 			"mock.point":{error_period: "1d"},
@@ -43,7 +43,7 @@ it('StatusMonitor.setConfig() - Verify fails on missing error_period.', () => {
 // });
 
 // TODO [rkenney]: Do a deep clone on export (when "..." available through JS6)
-// it('StatusMonitor.getConfig() - Verify clones data on export', () => {
+// test('StatusMonitor.getConfig() - Verify clones data on export', () => {
 // 	let config = {
 // 		points: {
 // 			"mock.point":{error_period: "1d"},
@@ -56,7 +56,7 @@ it('StatusMonitor.setConfig() - Verify fails on missing error_period.', () => {
 // 	expect(smConfig.points["mock.point"].error_period).toEqual("1d");
 // });
 
-it('StatusMonitor.getConfig() - Verify sets config successfully', () => {
+test('StatusMonitor.getConfig() - Verify sets config successfully', () => {
 	let config = {
 		points: {
 			"mock.point.1":{error_period: "1d"},
@@ -73,7 +73,7 @@ it('StatusMonitor.getConfig() - Verify sets config successfully', () => {
 	expect(config.points["mock.point.2"].error_period).toEqual("2d");
 });
 
-it('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK/ERROR', () => {
+test('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK/ERROR', () => {
 	let time = new Date(0).getTime();
 	// Setup
 	let config = {
@@ -81,11 +81,10 @@ it('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK/E
 			"mock.point.ok":{error_period: "1d"},
 			"mock.point.error":{error_period: "2d"},
 		},
-		timeProvider: () => {return new Date(time)},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+	sm.setConfig(config, () => new Date(time));
 
 	// Execute
 	time += ParseDuration("100ms");
@@ -102,7 +101,7 @@ it('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK/E
 	expect(pointStatus.lastReport["ERROR"]).toEqual(new Date(200));
 });
 
-it('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
+test('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
 	// Setup
 	let config = {
 		points: {
@@ -122,7 +121,7 @@ it('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
 	expect(pointStatus.lastReport["INITIAL"])
 });
 
-it('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
+test('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
 	// Setup
@@ -130,14 +129,13 @@ it('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 		points: {
 			"mock.point.initial": {error_period: "0"},
 		},
-		timeProvider: () => new Date(time),
 		stateChangeHandler: (pointName, oldState, newState) => {
 			stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
 		},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+    sm.setConfig(config, () => new Date(time));
 
 	// Execute
 	time += ParseDuration("2h")
@@ -151,22 +149,21 @@ it('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 	expect(stateChanges.length).toEqual(0);
 });
 
-it('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if within timeout', () => {
+test('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if within timeout', () => {
 	let time = new Date().getTime();
-	let stateChanges = [];
+    let stateChanges = [];
 	// Setup
 	let config = {
 		points: {
 			"mock.point.initial": {error_period: "1h"},
 		},
-		timeProvider: () => new Date(time),
 		stateChangeHandler: (pointName, oldState, newState) => {
 			stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
 		},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+    sm.setConfig(config, () => new Date(time));
 
 	// Execute
 	time += ParseDuration("30m")
@@ -180,22 +177,21 @@ it('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if with
 	expect(stateChanges.length).toEqual(0);
 });
 
-it('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeout', () => {
+test('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeout', () => {
 	let time = new Date().getTime();
-	let stateChanges = [];
+    let stateChanges = [];
 	// Setup
 	let config = {
 		points: {
 			"mock.point.initial": {error_period: "1h"},
 		},
-		timeProvider: () => new Date(time),
 		stateChangeHandler: (pointName, oldState, newState) => {
 			stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
 		},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+	sm.setConfig(config, () => new Date(time) );
 
 	// Execute
 	time += ParseDuration("2h")
@@ -211,7 +207,7 @@ it('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeout
 	expect(stateChanges[0].newState).toEqual(sm.STATE_ERROR);
 });
 
-it('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', () => {
+test('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
 	// Setup
@@ -219,14 +215,13 @@ it('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', ()
 		points: {
 			"mock.point.initial": {error_period: "1h"},
 		},
-		timeProvider: () => new Date(time),
 		stateChangeHandler: (pointName, oldState, newState) => {
 			stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
 		},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+    sm.setConfig(config, () => new Date(time));
 	time += ParseDuration("10m");
 	sm.reportStatus({name: "mock.point.initial", state: sm.STATE_OK });
 
@@ -244,7 +239,7 @@ it('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', ()
 	expect(stateChanges[0].newState).toEqual(sm.STATE_ERROR);
 });
 
-it('StatusMonitor.refreshState() - State transitions', () => {
+test('StatusMonitor.refreshState() - State transitions', () => {
 	// Setup
 	let time = new Date().getTime();
 	let stateChanges = [];
@@ -260,14 +255,13 @@ it('StatusMonitor.refreshState() - State transitions', () => {
 			"error.state.1h.timeout": {error_period: "1h"},
 			"error.state.2h.timeout": {error_period: "2h"}
 		},
-		timeProvider: () => new Date(time),
 		stateChangeHandler: (pointName, oldState, newState) => {
 			stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
 		},
 		logger: (msg) => {}
 	};
 	let sm = new StatusMonitor();
-	sm.setConfig(config);
+    sm.setConfig(config, () => new Date(time));
 	sm.reportStatus({name: "ok.state.no.timeout", state: sm.STATE_OK });
 	sm.reportStatus({name: "ok.state.1h.timeout", state: sm.STATE_OK });
 	sm.reportStatus({name: "ok.state.2h.timeout", state: sm.STATE_OK });

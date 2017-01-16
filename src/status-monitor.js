@@ -89,14 +89,14 @@ class StatusMonitor {
 
 		this.validateConfig = function(config) {
 			if (!config.points) {
-				throw Error("Config missing 'points' field.");
+				throw new Error("Config missing 'points' field.");
 			}
 			// TODO [rkenney]: Chose one of the following two iterators
 			forEachProperty(config.points, (point) => {
 				if (!config.points[point].error_period) {
 					// TODO [rkenney]: Sanitize this user input before logging
 					// ... to prevent log forging.
-					throw Error("Config missing 'error_period' for '"+point+"' point.");
+					throw new Error("Config missing 'error_period' for '"+point+"' point.");
 				}
 			});
 			// TODO [rkenney]: Remove if unused
@@ -104,7 +104,7 @@ class StatusMonitor {
 			// 	if (!config.points[point].error_period) {
 			// 		// TODO [rkenney]: Sanitize this user input before logging
 			// 		// ... to prevent log forging.
-			// 		throw Error("Config missing 'error_period' for '"+key+"' point.");
+			// 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
 			// 	}
 			// };
 		};
@@ -140,20 +140,20 @@ StatusMonitor.prototype.STATE_OK = "OK";
  */
 StatusMonitor.prototype.STATE_ERROR = "ERROR";
 
-StatusMonitor.prototype.setConfig = function (newConfig) {
+StatusMonitor.prototype.setConfig = function (newConfig, timeProvider) {
+	// TODO [rkenney]: Prune unconfigured points from status
+    if (newConfig.stateChangeHandler) {
+		this.stateChangeHandler = newConfig.stateChangeHandler;
+	}
+	if (timeProvider) {
+		this.timeProvider = timeProvider;
+	}
+	if (newConfig.logger) {
+		this.logger = newConfig.logger;
+	}
 	this.validateConfig(newConfig);
 	this.config = newConfig;
 	this.initializeAllPoints();
-	// TODO [rkenney]: Prune unconfigured points from status
-	if (this.config.stateChangeHandler) {
-		this.stateChangeHandler = this.config.stateChangeHandler;
-	}
-	if (this.config.timeProvider) {
-		this.timeProvider = this.config.timeProvider;
-	}
-	if (this.config.logger) {
-		this.logger = this.config.logger;
-	}
 };
 
 StatusMonitor.prototype.getConfig = function() {
@@ -219,8 +219,8 @@ StatusMonitor.prototype.refreshTimeouts = function() {
 			pointStatus.state == this.STATE_INITIAL &&
 			this.hasReportWithinTimeout(point, this.STATE_INITIAL)) {
 			newState = this.STATE_INITIAL;
-		} else {
-			newState = this.STATE_ERROR;
+        } else {
+            newState = this.STATE_ERROR;
 		}
 
 		let oldState = this.status.points[point].state;
