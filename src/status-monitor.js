@@ -183,12 +183,12 @@ StatusMonitor.prototype.reportStatus = function (report) {
 		// ... of stringf() method that applies sanitization to the args.
 		// ... The new constructor could accept certain arguments as "new SafeArg(arg)"
 		// ... to skip sanitization of strings build by the system.
-		throw new Error("Invalid status '"+report.status+"' reported for point '"+report.name+"'");
+		throw new Error("Invalid state '"+report.state+"' reported for point '"+report.name+"'");
 	}
 
 	// TODO [rkenney]: Sanitize this user input before logging
 	// ... to prevent log forging.
-	this.logger("Point '"+report.name+"' reported '"+report.status+"'");
+	this.logger("Point '"+report.name+"' reported '"+report.state+"'");
 };
 
 StatusMonitor.prototype.getStatus = function() {
