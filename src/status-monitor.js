@@ -42,72 +42,79 @@ var state = {
 
 // TODO [rkenney]: Load JS6 and use export here
 class StatusMonitor {
-	constructor() {
-		this.config = {
-			points: {}
-		};
-		this.status = {
-			points: {}
-		};
+	constructor(config, timeProvider) {
 
-		this.logger = function(msg) {
-			console.log(msg);
-		};
+        this.initializeAllPoints = function() {
+            forEachProperty(this.config.points, (point) => {
+                this.ensurePointDefined(point);
+            });
+        };
 
-		this.timeProvider = function() {
-			return new Date();
-		};
+        this.ensurePointDefined = function(pointName) {
+            let pointConfig = this.config.points[pointName];
+            if (!pointConfig) {
+                // TODO [rkenney]: Sanitize this user input before logging
+                // ... to prevent log forging.
+                throw new Error("Invalid point '"+pointName+"'");
+            }
+            let pointStatus = this.status.points[pointName];
+            if (!pointStatus) {
+                this.status.points[pointName] = {
+                    state: this.STATE_INITIAL,
+                    lastReport: {
+                        "INITIAL": this.timeProvider()
+                    }
+                };
+            }
+        };
 
-		this.stateChangeHandler = function(pointName, oldState, newState) {
-			let json = {pointName: pointName, oldState: oldState, newState: newState};
-			this.logger("State Changed: "+JSON.stringify(json));
-		};
+        this.validateConfig = function(config) {
+            if (!config.points) {
+                throw new Error("Config missing 'points' field.");
+            }
+            // TODO [rkenney]: Chose one of the following two iterators
+            forEachProperty(config.points, (point) => {
+                if (!config.points[point].error_period) {
+                    // TODO [rkenney]: Sanitize this user input before logging
+                    // ... to prevent log forging.
+                    throw new Error("Config missing 'error_period' for '"+point+"' point.");
+                }
+            });
+            // TODO [rkenney]: Remove if unused
+            // Object.keys(config.points).forEach((point, index) => {
+            // 	if (!config.points[point].error_period) {
+            // 		// TODO [rkenney]: Sanitize this user input before logging
+            // 		// ... to prevent log forging.
+            // 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
+            // 	}
+            // };
+        };
 
-		this.initializeAllPoints = function() {
-			forEachProperty(this.config.points, (point) => {
-				this.ensurePointDefined(point);
-			});
-		};
+        this.status = {
+            points: {}
+        };
 
-		this.ensurePointDefined = function(pointName) {
-			let pointConfig = this.config.points[pointName];
-			if (!pointConfig) {
-				// TODO [rkenney]: Sanitize this user input before logging
-				// ... to prevent log forging.
-				throw new Error("Invalid point '"+pointName+"'");
-			}
-			let pointStatus = this.status.points[pointName];
-			if (!pointStatus) {
-				this.status.points[pointName] = {
-					state: this.STATE_INITIAL,
-					lastReport: {
-						"INITIAL": this.timeProvider()
-					}
-				};
-			}
-		};
-
-		this.validateConfig = function(config) {
-			if (!config.points) {
-				throw new Error("Config missing 'points' field.");
-			}
-			// TODO [rkenney]: Chose one of the following two iterators
-			forEachProperty(config.points, (point) => {
-				if (!config.points[point].error_period) {
-					// TODO [rkenney]: Sanitize this user input before logging
-					// ... to prevent log forging.
-					throw new Error("Config missing 'error_period' for '"+point+"' point.");
-				}
-			});
-			// TODO [rkenney]: Remove if unused
-			// Object.keys(config.points).forEach((point, index) => {
-			// 	if (!config.points[point].error_period) {
-			// 		// TODO [rkenney]: Sanitize this user input before logging
-			// 		// ... to prevent log forging.
-			// 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
-			// 	}
-			// };
-		};
+        if (config.stateChangeHandler) {
+            this.stateChangeHandler = config.stateChangeHandler;
+        } else {
+            this.stateChangeHandler = (pointName, oldState, newState) => {
+                let json = {pointName: pointName, oldState: oldState, newState: newState};
+                this.logger("State Changed: "+JSON.stringify(json));
+            };
+		}
+        if (timeProvider) {
+            this.timeProvider = timeProvider;
+        } else {
+        	this.timeProvider = () => new Date();
+		}
+        if (config.logger) {
+            this.logger = config.logger;
+        } else {
+            this.logger = (msg) => console.log(msg);
+        }
+        this.validateConfig(config);
+        this.config = config;
+        this.initializeAllPoints();
 
 		this.hasReportWithinTimeout = function(pointName, state) {
 			let now = this.timeProvider();
@@ -139,22 +146,6 @@ StatusMonitor.prototype.STATE_OK = "OK";
  * or a timeout was triggered since the last OK report.
  */
 StatusMonitor.prototype.STATE_ERROR = "ERROR";
-
-StatusMonitor.prototype.setConfig = function (newConfig, timeProvider) {
-	// TODO [rkenney]: Prune unconfigured points from status
-    if (newConfig.stateChangeHandler) {
-		this.stateChangeHandler = newConfig.stateChangeHandler;
-	}
-	if (timeProvider) {
-		this.timeProvider = timeProvider;
-	}
-	if (newConfig.logger) {
-		this.logger = newConfig.logger;
-	}
-	this.validateConfig(newConfig);
-	this.config = newConfig;
-	this.initializeAllPoints();
-};
 
 StatusMonitor.prototype.getConfig = function() {
 	return this.config;

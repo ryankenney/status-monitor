@@ -19,8 +19,7 @@ describe('REST Test', () => {
 		let time = initialTime;
 
 		beforeEach(() => {
-			sm = new StatusMonitor();
-			sm.setConfig({ points: { "one.point": {error_period: "1h"} } }, ()=>time);
+			sm = new StatusMonitor({ points: { "one.point": {error_period: "1h"} } }, ()=>time);
 			server = new RestService(8083, sm, logger);
 			client = new RestClient("http://localhost:8083", logger);
 		});
@@ -30,7 +29,6 @@ describe('REST Test', () => {
 		});
 
 		it('Get undefined returns undefined.', () => {
-			sm.setConfig({ points: { "one.point": {error_period: "1h"} } });
 			return new Promise((resolve, reject) => {
 				client.getStatusReport(statusReport => { resolve(statusReport); });
 			}).then(statusReport => {
@@ -39,7 +37,6 @@ describe('REST Test', () => {
 		});
 
 		it('Get configured, but never reported, returns only INITIAL.', () => {
-			sm.setConfig({ points: { "one.point": {error_period: "1h"} } });
 			return new Promise((resolve, reject) => {
 				client.getStatusReport(statusReport => { resolve(statusReport); });
 			}).then(statusReport => {
@@ -54,7 +51,6 @@ describe('REST Test', () => {
             let reportErrorTime = new Date(time.getTime() + 2000);
             let reportOk2Time = new Date(time.getTime() + 3000);
 
-			sm.setConfig({ points: { "one.point": {error_period: "1h"} } });
 			return new Promise((resolve, reject) => {
 				client.getStatusReport(statusReport => { resolve(statusReport); });
             }).then(statusReport => {
