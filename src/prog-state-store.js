@@ -6,22 +6,15 @@ class ProgStateStore {
     }
 }
 /**
- * Returns a Promise that writes the provided JSON object to the specified file.
- * This Promise will throw an exception (Error) if the write fails for any reason.
- * (Use .catch() to handle the exception.)
+ * Writes the provided JSON object to the specified file.
+ * Throws an exception (Error) if the read fails for any reason, including not-existing.
+ * (Use try {} catch {} to handle the exception.)
  */
 ProgStateStore.prototype.saveState = function (state) {
     let file = this.file;
     let temp = this.file+".tmp";
-    return new Promise((resolve) => {
-        FS.writeFile(temp, JSON.stringify(state), function(err) {
-            if(err) {
-                throw new Error("Failed to write to ["+temp+"]");
-            }
-            FS.renameSync(temp, file);
-            resolve();
-        });
-    });
+    FS.writeFileSync(temp, JSON.stringify(state), 'utf8');
+    FS.renameSync(temp, file);
 };
 
 /**
@@ -29,9 +22,9 @@ ProgStateStore.prototype.saveState = function (state) {
  * Throws an exception (Error) if the read fails for any reason, including not-existing.
  * (Use try {} catch {} to handle the exception.)
  */
-ProgStateStore.prototype.loadStateSync = function (state) {
+ProgStateStore.prototype.loadState = function (state) {
     if (!FS.existsSync(this.file)) {
-        return null;
+        throw new Error("Failed to read file ["+this.file+"]");
     }
     return JSON.parse(FS.readFileSync(this.file));
 };
