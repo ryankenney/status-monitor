@@ -42,7 +42,7 @@ var state = {
 
 // TODO [rkenney]: Load JS6 and use export here
 class StatusMonitor {
-	constructor(config, timeProvider) {
+	constructor(config, progStateStore, timeProvider) {
 
         this.initializeAllPoints = function() {
             forEachProperty(this.config.points, (point) => {
@@ -57,15 +57,17 @@ class StatusMonitor {
                 // ... to prevent log forging.
                 throw new Error("Invalid point '"+pointName+"'");
             }
-            let pointStatus = this.status.points[pointName];
+            let progState = this.stateStore.load();
+            let pointStatus = progState.points[pointName];
             if (!pointStatus) {
-                this.status.points[pointName] = {
+                progState.points[pointName] = {
                     state: this.STATE_INITIAL,
                     lastReport: {
                         "INITIAL": this.timeProvider()
                     }
                 };
             }
+            this.stateStore.store(progState);
         };
 
         this.validateConfig = function(config) {
@@ -90,9 +92,8 @@ class StatusMonitor {
             // };
         };
 
-        this.status = {
-            points: {}
-        };
+        this.stateStore = progStateStore;
+        this.stateStore.store({points: {}});
 
         if (config.stateChangeHandler) {
             this.stateChangeHandler = config.stateChangeHandler;
@@ -119,7 +120,7 @@ class StatusMonitor {
 		this.hasReportWithinTimeout = function(pointName, state) {
 			let now = this.timeProvider();
 			let pointConfig = this.config.points[pointName];
-			let pointStatus = this.status.points[pointName];
+			let pointStatus = this.stateStore.load().points[pointName];
 			if (! pointStatus.lastReport[state]) {
 				return false;
 			}
@@ -153,7 +154,7 @@ StatusMonitor.prototype.getConfig = function() {
 
 StatusMonitor.prototype.reportStatus = function (report) {
 	this.ensurePointDefined(report.name);
-	let pointStatus = this.status.points[report.name];
+	let pointStatus = this.stateStore.load().points[report.name];
 
 	switch (report.state) {
 	case this.STATE_OK:
@@ -183,19 +184,19 @@ StatusMonitor.prototype.reportStatus = function (report) {
 };
 
 StatusMonitor.prototype.getStatus = function() {
-	return this.status;
+	return this.stateStore.load();
 };
 
 StatusMonitor.prototype.getPointStatus = function(pointName) {
 	this.ensurePointDefined(pointName);
-	return this.status.points[pointName];
+	return this.stateStore.load().points[pointName];
 };
 
 StatusMonitor.prototype.refreshTimeouts = function() {
 	forEachProperty(this.config.points, (point) => {
 		this.ensurePointDefined(point);
 
-		let pointStatus = this.status.points[point];
+		let pointStatus = this.stateStore.load().points[point];
 
 		// Continue if no timeout configured
 		let timeout = ParseDuration(this.config.points[point].error_period);
@@ -214,7 +215,7 @@ StatusMonitor.prototype.refreshTimeouts = function() {
             newState = this.STATE_ERROR;
 		}
 
-		let oldState = this.status.points[point].state;
+		let oldState = pointStatus.state;
 		pointStatus.state = newState;
 
 		if (newState != oldState) {

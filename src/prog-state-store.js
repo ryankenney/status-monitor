@@ -6,27 +6,30 @@ class ProgStateStore {
     }
 }
 /**
- * Writes the provided JSON object to the specified file.
- * Throws an exception (Error) if the read fails for any reason, including not-existing.
- * (Use try {} catch {} to handle the exception.)
+ * Writes the provided JSON object to the backing file.
  */
-ProgStateStore.prototype.saveState = function (state) {
+ProgStateStore.prototype.store = function (state) {
     let file = this.file;
     let temp = this.file+".tmp";
     FS.writeFileSync(temp, JSON.stringify(state), 'utf8');
     FS.renameSync(temp, file);
+    this.state = state;
 };
 
 /**
- * Synchronously reads and returns the underlying file as a JSON object.
- * Throws an exception (Error) if the read fails for any reason, including not-existing.
- * (Use try {} catch {} to handle the exception.)
+ * Reads the current state from the file-backed store. Technically, this reads the cached
+ * copy of the state. This is safe so long as the application is single-threaded,
+ * and no other applications modify the file.
  */
-ProgStateStore.prototype.loadState = function (state) {
-    if (!FS.existsSync(this.file)) {
-        throw new Error("Failed to read file ["+this.file+"]");
+ProgStateStore.prototype.load = function (state) {
+    if (!this.wasLoaded) {
+        if (!FS.existsSync(this.file)) {
+            throw new Error("Failed to read file [" + this.file + "]");
+        }
+        this.state = JSON.parse(FS.readFileSync(this.file));
+        this.wasLoaded = true;
     }
-    return JSON.parse(FS.readFileSync(this.file));
+    return this.state;
 };
 
 module.exports = ProgStateStore;

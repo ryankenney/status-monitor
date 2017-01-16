@@ -2,12 +2,22 @@ const StatusMonitor = require('../status-monitor.js');
 const RestService = require('../rest-service.js');
 const RestClient = require('../rest-client.js');
 const net = require('net');
+const FS = require('fs-extra');
+const ProgStateStore = require('../prog-state-store.js');
 
 // TODO [rkenney]: We don't need this any more, but we could down the line...
 require('promise.prototype.finally').shim();
 
 // TODO [rkenney]: Silence logger
-var logger = (msg) => { console.log(msg); };
+var logger = (msg) => { /* console.log(msg); */ };
+
+let testFiles = "./test-temp";
+let progStateFile = testFiles+"/progState.json";
+
+beforeEach(() => {
+    FS.removeSync(testFiles);
+    FS.mkdirsSync(testFiles);
+});
 
 describe('REST Test', () => {
 	describe('getStatusReport()', () => {
@@ -19,7 +29,8 @@ describe('REST Test', () => {
 		let time = initialTime;
 
 		beforeEach(() => {
-			sm = new StatusMonitor({ points: { "one.point": {error_period: "1h"} } }, ()=>time);
+			sm = new StatusMonitor({ points: { "one.point": {error_period: "1h"} }, logger: logger },
+                new ProgStateStore(progStateFile), ()=>time);
 			server = new RestService(8083, sm, logger);
 			client = new RestClient("http://localhost:8083", logger);
 		});

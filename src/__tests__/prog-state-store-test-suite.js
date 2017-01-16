@@ -11,9 +11,9 @@ beforeEach(() => {
 test('Write and read file', () => {
     let file = testFiles+"/file.json";
     let store = new ProgStateStore(file);
-    store.saveState({"x":"value"});
+    store.store({"x":"value"});
     expect(FS.existsSync(file)).toEqual(true);
-    let data = store.loadState(file);
+    let data = store.load(file);
     expect(data).toEqual({"x":"value"});
 });
 
