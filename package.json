@@ -8,6 +8,7 @@
     "jest-cli": "^15.1.1"
   },
   "//": "promise.prototype.finally included until Node support Promise.finally() natively",
+  "//": "body-parser plugs into mocha rest server to parson responses",
   "dependencies": {
     "body-parser": "^1.15.2",
     "deep-diff": "^0.3.4",
