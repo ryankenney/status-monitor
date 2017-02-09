@@ -27,11 +27,14 @@ describe('REST Test', () => {
 		let client;
 		const initialTime = new Date(2000, 1, 1, 0, 0, 0); 
 		let time = initialTime;
+		let config = { points: { "one.point": {error_period: "1h"} } };
 
 		beforeEach(() => {
-			sm = new StatusMonitor(
-				{ points: { "one.point": {error_period: "1h"} } },
-				{ progStateStore: new ProgStateStore(progStateFile), time: ()=>time, logger: logger }) ;
+			sm = new StatusMonitor({
+				config: () => config,
+				progStateStore: new ProgStateStore(progStateFile),
+				time: ()=>time,
+				logger: logger });
 			server = new RestService(8083, sm, logger);
 			client = new RestClient("http://localhost:8083", logger);
 		});
