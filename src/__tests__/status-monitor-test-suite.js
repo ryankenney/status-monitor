@@ -12,7 +12,7 @@ test('StatusMonitor() - Verify fails on missing points.', () => {
 	let config = {
 	};
 	try {
-		new StatusMonitor(config, mockStateStore);
+		new StatusMonitor(config, { progStateStore: mockStateStore });
 		fail("Expected exception");
 	} catch (e) {
 		expect(""+e).toEqual("Error: Config missing 'points' field.");
@@ -28,7 +28,7 @@ test('StatusMonitor() - Verify fails on missing error_period.', () => {
         logger: (msg) => {}
 	};
 	try {
-		new StatusMonitor(config, mockStateStore);
+		new StatusMonitor(config, { progStateStore: mockStateStore });
 		fail("Expected exception");
 	} catch (e) {
 		expect(""+e).toEqual("Error: Config missing 'error_period' for 'mock.point.without.error_period' point.");
@@ -70,7 +70,7 @@ test('StatusMonitor.getConfig() - Verify sets config successfully', () => {
         },
         logger: (msg) => {}
 	};
-	let sm = new StatusMonitor(config, mockStateStore);
+	let sm = new StatusMonitor(config, { progStateStore: mockStateStore });
 	config = sm.getConfig();
 
 	// Verify
@@ -89,7 +89,7 @@ test('StatusMonitor.setStatus()/getStatus() - Verify ability to set status to OK
         },
         logger: (msg) => {}
 	};
-	let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+	let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 
 	// Execute
 	time += ParseDuration("100ms");
@@ -114,7 +114,7 @@ test('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
         },
         logger: (msg) => {}
 	};
-    let sm = new StatusMonitor(config, mockStateStore);
+    let sm = new StatusMonitor(config, { progStateStore: mockStateStore });
 
 	// Verify
 	let pointStatus = sm.getPointStatus("mock.point.initial");
@@ -138,7 +138,7 @@ test('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
         },
         logger: (msg) => {}
 	};
-    let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+    let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 
 	// Execute
 	time += ParseDuration("2h")
@@ -165,7 +165,7 @@ test('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if wi
         },
         logger: (msg) => {}
 	};
-    let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+    let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 
 	// Execute
 	time += ParseDuration("30m")
@@ -192,7 +192,7 @@ test('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeo
         },
         logger: (msg) => {}
 	};
-    let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+    let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 
 	// Execute
 	time += ParseDuration("2h")
@@ -221,7 +221,7 @@ test('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', 
 		},
 		logger: (msg) => {}
 	};
-    let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+    let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 	time += ParseDuration("10m");
 	sm.reportStatus({name: "mock.point.initial", state: sm.STATE_OK });
 
@@ -260,7 +260,7 @@ test('StatusMonitor.refreshState() - State transitions', () => {
 		},
         logger: (msg) => {}
 	};
-	let sm = new StatusMonitor(config, mockStateStore, () => new Date(time));
+	let sm = new StatusMonitor(config, { progStateStore: mockStateStore, timeProvider: () => new Date(time) });
 	sm.reportStatus({name: "ok.state.no.timeout", state: sm.STATE_OK });
 	sm.reportStatus({name: "ok.state.1h.timeout", state: sm.STATE_OK });
 	sm.reportStatus({name: "ok.state.2h.timeout", state: sm.STATE_OK });

@@ -42,7 +42,7 @@ var state = {
 
 // TODO [rkenney]: Load JS6 and use export here
 class StatusMonitor {
-	constructor(config, progStateStore, timeProvider) {
+	constructor(config, providers) {
 
         this.initializeAllPoints = function() {
             forEachProperty(this.config.points, (point) => {
@@ -92,7 +92,7 @@ class StatusMonitor {
             // };
         };
 
-        this.stateStore = progStateStore;
+        this.stateStore = providers.progStateStore;
         this.stateStore.store({points: {}});
 
         if (config.stateChangeHandler) {
@@ -103,8 +103,8 @@ class StatusMonitor {
                 this.logger("State Changed: "+JSON.stringify(json));
             };
 		}
-        if (timeProvider) {
-            this.timeProvider = timeProvider;
+        if (providers.timeProvider) {
+            this.timeProvider = providers.timeProvider;
         } else {
         	this.timeProvider = () => new Date();
 		}
