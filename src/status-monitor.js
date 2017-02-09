@@ -63,7 +63,7 @@ class StatusMonitor {
                 progState.points[pointName] = {
                     state: this.STATE_INITIAL,
                     lastReport: {
-                        "INITIAL": this.timeProvider()
+                        "INITIAL": this.time()
                     }
                 };
             }
@@ -103,13 +103,13 @@ class StatusMonitor {
                 this.logger("State Changed: "+JSON.stringify(json));
             };
 		}
-        if (providers.timeProvider) {
-            this.timeProvider = providers.timeProvider;
+        if (providers.time) {
+            this.time = providers.time;
         } else {
-        	this.timeProvider = () => new Date();
+			this.time = () => new Date();
 		}
-        if (config.logger) {
-            this.logger = config.logger;
+        if (providers.logger) {
+            this.logger = providers.logger;
         } else {
             this.logger = (msg) => console.log(msg);
         }
@@ -118,7 +118,7 @@ class StatusMonitor {
         this.initializeAllPoints();
 
 		this.hasReportWithinTimeout = function(pointName, state) {
-			let now = this.timeProvider();
+			let now = this.time();
 			let pointConfig = this.config.points[pointName];
 			let pointStatus = this.stateStore.load().points[pointName];
 			if (! pointStatus.lastReport[state]) {
@@ -160,7 +160,7 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	case this.STATE_OK:
 	case this.STATE_ERROR:
 		pointStatus.state = report.state;
-		pointStatus.lastReport[report.state] = this.timeProvider();
+		pointStatus.lastReport[report.state] = this.time();
 		break;
 	case this.STATE_INITIAL:
 		// TODO [rkenney]: Sanitize this user input before logging

@@ -30,8 +30,8 @@ describe('REST Test', () => {
 
 		beforeEach(() => {
 			sm = new StatusMonitor(
-				{ points: { "one.point": {error_period: "1h"} }, logger: logger },
-				{ progStateStore: new ProgStateStore(progStateFile), timeProvider: ()=>time }) ;
+				{ points: { "one.point": {error_period: "1h"} } },
+				{ progStateStore: new ProgStateStore(progStateFile), time: ()=>time, logger: logger }) ;
 			server = new RestService(8083, sm, logger);
 			client = new RestClient("http://localhost:8083", logger);
 		});
