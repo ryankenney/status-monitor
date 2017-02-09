@@ -15,8 +15,8 @@ let testFiles = "./test-temp";
 let progStateFile = testFiles+"/progState.json";
 
 beforeEach(() => {
-    FS.removeSync(testFiles);
-    FS.mkdirsSync(testFiles);
+	FS.removeSync(testFiles);
+	FS.mkdirsSync(testFiles);
 });
 
 describe('REST Test', () => {
@@ -59,60 +59,60 @@ describe('REST Test', () => {
 		});
 
 		it('Changing state with reports.', () => {
-            let reportOkTime = new Date(time.getTime() + 1000);
-            let reportErrorTime = new Date(time.getTime() + 2000);
-            let reportOk2Time = new Date(time.getTime() + 3000);
+			let reportOkTime = new Date(time.getTime() + 1000);
+			let reportErrorTime = new Date(time.getTime() + 2000);
+			let reportOk2Time = new Date(time.getTime() + 3000);
 
 			return new Promise((resolve, reject) => {
 				client.getStatusReport(statusReport => { resolve(statusReport); });
-            }).then(statusReport => {
-            	// Verify initial state
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toBeUndefined();
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toBeUndefined();
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    time = new Date(reportOkTime);
-                    client.postPointStatus({name:"one.point",state:sm.STATE_OK}, statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    client.getStatusReport(statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                // Verify OK applied
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOkTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toBeUndefined();
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    time = new Date(reportErrorTime);
-                    client.postPointStatus({name:"one.point",state:sm.STATE_ERROR}, statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    client.getStatusReport(statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                // Verify ERROR applied
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOkTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toEqual(reportErrorTime.toISOString());
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    time = new Date(reportOk2Time);
-                    client.postPointStatus({name:"one.point",state:sm.STATE_OK}, statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                return new Promise((resolve, reject) => {
-                    client.getStatusReport(statusReport => { resolve(statusReport); });
-                });
-            }).then(statusReport => {
-                // Verify OK applied (time updated)
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOk2Time.toISOString());
-                expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toEqual(reportErrorTime.toISOString());
-            });
+			}).then(statusReport => {
+				// Verify initial state
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toBeUndefined();
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toBeUndefined();
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					time = new Date(reportOkTime);
+					client.postPointStatus({name:"one.point",state:sm.STATE_OK}, statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					client.getStatusReport(statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				// Verify OK applied
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOkTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toBeUndefined();
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					time = new Date(reportErrorTime);
+					client.postPointStatus({name:"one.point",state:sm.STATE_ERROR}, statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					client.getStatusReport(statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				// Verify ERROR applied
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOkTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toEqual(reportErrorTime.toISOString());
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					time = new Date(reportOk2Time);
+					client.postPointStatus({name:"one.point",state:sm.STATE_OK}, statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				return new Promise((resolve, reject) => {
+					client.getStatusReport(statusReport => { resolve(statusReport); });
+				});
+			}).then(statusReport => {
+				// Verify OK applied (time updated)
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_INITIAL]).toEqual(initialTime.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_OK]).toEqual(reportOk2Time.toISOString());
+				expect(statusReport.points["one.point"].lastReport[sm.STATE_ERROR]).toEqual(reportErrorTime.toISOString());
+			});
 		});
 	});
 });

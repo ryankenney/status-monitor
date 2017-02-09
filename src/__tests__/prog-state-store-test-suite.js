@@ -9,11 +9,11 @@ beforeEach(() => {
 });
 
 test('Write and read file', () => {
-    let file = testFiles+"/file.json";
-    let store = new ProgStateStore(file);
-    store.store({"x":"value"});
-    expect(FS.existsSync(file)).toEqual(true);
-    let data = store.load(file);
-    expect(data).toEqual({"x":"value"});
+	let file = testFiles+"/file.json";
+	let store = new ProgStateStore(file);
+	store.store({"x":"value"});
+	expect(FS.existsSync(file)).toEqual(true);
+	let data = store.load(file);
+	expect(data).toEqual({"x":"value"});
 });
 

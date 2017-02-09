@@ -44,78 +44,78 @@ var state = {
 class StatusMonitor {
 	constructor(config, providers) {
 
-        this.initializeAllPoints = function() {
-            forEachProperty(this.config.points, (point) => {
-                this.ensurePointDefined(point);
-            });
-        };
+		this.initializeAllPoints = function() {
+			forEachProperty(this.config.points, (point) => {
+				this.ensurePointDefined(point);
+			});
+		};
 
-        this.ensurePointDefined = function(pointName) {
-            let pointConfig = this.config.points[pointName];
-            if (!pointConfig) {
-                // TODO [rkenney]: Sanitize this user input before logging
-                // ... to prevent log forging.
-                throw new Error("Invalid point '"+pointName+"'");
-            }
-            let progState = this.stateStore.load();
-            let pointStatus = progState.points[pointName];
-            if (!pointStatus) {
-                progState.points[pointName] = {
-                    state: this.STATE_INITIAL,
-                    lastReport: {
-                        "INITIAL": this.time()
-                    }
-                };
-            }
-            this.stateStore.store(progState);
-        };
+		this.ensurePointDefined = function(pointName) {
+			let pointConfig = this.config.points[pointName];
+			if (!pointConfig) {
+				// TODO [rkenney]: Sanitize this user input before logging
+				// ... to prevent log forging.
+				throw new Error("Invalid point '"+pointName+"'");
+			}
+			let progState = this.stateStore.load();
+			let pointStatus = progState.points[pointName];
+			if (!pointStatus) {
+				progState.points[pointName] = {
+					state: this.STATE_INITIAL,
+					lastReport: {
+						"INITIAL": this.time()
+					}
+				};
+			}
+			this.stateStore.store(progState);
+		};
 
-        this.validateConfig = function(config) {
-            if (!config.points) {
-                throw new Error("Config missing 'points' field.");
-            }
-            // TODO [rkenney]: Chose one of the following two iterators
-            forEachProperty(config.points, (point) => {
-                if (!config.points[point].error_period) {
-                    // TODO [rkenney]: Sanitize this user input before logging
-                    // ... to prevent log forging.
-                    throw new Error("Config missing 'error_period' for '"+point+"' point.");
-                }
-            });
-            // TODO [rkenney]: Remove if unused
-            // Object.keys(config.points).forEach((point, index) => {
-            // 	if (!config.points[point].error_period) {
-            // 		// TODO [rkenney]: Sanitize this user input before logging
-            // 		// ... to prevent log forging.
-            // 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
-            // 	}
-            // };
-        };
+		this.validateConfig = function(config) {
+			if (!config.points) {
+				throw new Error("Config missing 'points' field.");
+			}
+			// TODO [rkenney]: Chose one of the following two iterators
+			forEachProperty(config.points, (point) => {
+				if (!config.points[point].error_period) {
+					// TODO [rkenney]: Sanitize this user input before logging
+					// ... to prevent log forging.
+					throw new Error("Config missing 'error_period' for '"+point+"' point.");
+				}
+			});
+			// TODO [rkenney]: Remove if unused
+			// Object.keys(config.points).forEach((point, index) => {
+			// 	if (!config.points[point].error_period) {
+			// 		// TODO [rkenney]: Sanitize this user input before logging
+			// 		// ... to prevent log forging.
+			// 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
+			// 	}
+			// };
+		};
 
-        this.stateStore = providers.progStateStore;
-        this.stateStore.store({points: {}});
+		this.stateStore = providers.progStateStore;
+		this.stateStore.store({points: {}});
 
-        if (config.stateChangeHandler) {
-            this.stateChangeHandler = config.stateChangeHandler;
-        } else {
-            this.stateChangeHandler = (pointName, oldState, newState) => {
-                let json = {pointName: pointName, oldState: oldState, newState: newState};
-                this.logger("State Changed: "+JSON.stringify(json));
-            };
+		if (config.stateChangeHandler) {
+			this.stateChangeHandler = config.stateChangeHandler;
+		} else {
+			this.stateChangeHandler = (pointName, oldState, newState) => {
+				let json = {pointName: pointName, oldState: oldState, newState: newState};
+				this.logger("State Changed: "+JSON.stringify(json));
+			};
 		}
-        if (providers.time) {
-            this.time = providers.time;
-        } else {
+		if (providers.time) {
+			this.time = providers.time;
+		} else {
 			this.time = () => new Date();
 		}
-        if (providers.logger) {
-            this.logger = providers.logger;
-        } else {
-            this.logger = (msg) => console.log(msg);
-        }
-        this.validateConfig(config);
-        this.config = config;
-        this.initializeAllPoints();
+		if (providers.logger) {
+			this.logger = providers.logger;
+		} else {
+			this.logger = (msg) => console.log(msg);
+		}
+		this.validateConfig(config);
+		this.config = config;
+		this.initializeAllPoints();
 
 		this.hasReportWithinTimeout = function(pointName, state) {
 			let now = this.time();
@@ -211,8 +211,8 @@ StatusMonitor.prototype.refreshTimeouts = function() {
 			pointStatus.state == this.STATE_INITIAL &&
 			this.hasReportWithinTimeout(point, this.STATE_INITIAL)) {
 			newState = this.STATE_INITIAL;
-        } else {
-            newState = this.STATE_ERROR;
+		} else {
+			newState = this.STATE_ERROR;
 		}
 
 		let oldState = pointStatus.state;
