@@ -19,7 +19,7 @@ class RestService {
 				if ( request && request.method ) { method = request.method+" "; }
 				logger("Request "+method+"["+url+"] failed");
 				logger(exception);
-				respond.status(500).send("{}");
+				respond.status(500).send("{\"http\":500}");
 			} catch (e) {
 				console.log(e);
 			}
@@ -42,7 +42,7 @@ class RestService {
 						throw new Error("Missing state field")
 					}
 					statusMonitor.reportStatus(req.body);
-					res.end("{}");
+					res.end("{\"http\":200}");
 				} catch (e) {
 					handleRootException(e, req, res);
 				}

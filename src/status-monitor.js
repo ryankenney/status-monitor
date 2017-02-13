@@ -154,6 +154,7 @@ StatusMonitor.prototype.getConfig = function() {
 StatusMonitor.prototype.reportStatus = function (report) {
 	this.ensurePointDefined(report.name);
 	let pointStatus = this.stateStore.load().points[report.name];
+	let oldState = pointStatus.state;
 
 	switch (report.state) {
 	case this.STATE_OK:
@@ -180,6 +181,10 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	// TODO [rkenney]: Sanitize this user input before logging
 	// ... to prevent log forging.
 	this.logger("Point '"+report.name+"' reported '"+report.state+"'");
+
+	if (oldState != report.state) {
+		this.stateChangeHandler(report.name, oldState, report.state);
+	}
 };
 
 StatusMonitor.prototype.getStatus = function() {
