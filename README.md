@@ -15,6 +15,14 @@ Preparing the App to Run
 		cd status-monitor
 		npm install
 
+Launching the Web Server
+--------------------
+
+Simply run:
+
+	node src/main.js
+
+
 Executing Unit Tests
 --------------------
 
