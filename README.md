@@ -15,22 +15,37 @@ Preparing the App to Run
 		cd status-monitor
 		npm install
 
+Configuring the Web Server
+--------------------
+
+Copy/edit the sample config file:
+
+	cp config.json.example config.json
+
 Launching the Web Server
 --------------------
 
-Simply run:
+Run:
 
 	node src/main.js
 
+Posting Status Reports via Curl
+--------------------
+
+Run:
+
+	curl -H "Content-Type: application/json" \
+	-d '{"name":"point-one","state":"OK"}' \
+	http://127.0.0.1:8081/report-status
 
 Executing Unit Tests
 --------------------
 
-Simply run:
+Run:
 
 	npm run test
 
-... start a watcher process that responds to source edits:
+Or, you can start a watcher process that responds to source edits:
 
 	# All Tests
 	npm test -- --watch

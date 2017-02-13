@@ -17,7 +17,7 @@ class RestService {
 				let method = "";
 				if ( request && request.url ) { url = request.url; }
 				if ( request && request.method ) { method = request.method+" "; }
-				logger("Request "+method+" ["+url+"] failed");
+				logger("Request "+method+"["+url+"] failed");
 				logger(exception);
 				respond.status(500).send("{}");
 			} catch (e) {
