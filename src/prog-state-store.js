@@ -23,10 +23,11 @@ ProgStateStore.prototype.store = function (state) {
  */
 ProgStateStore.prototype.load = function (state) {
 	if (!this.wasLoaded) {
-		if (!FS.existsSync(this.file)) {
-			throw new Error("Failed to read file [" + this.file + "]");
+		let json = "{ \"points\": {} }";
+		if (FS.existsSync(this.file)) {
+			json = FS.readFileSync(this.file);
 		}
-		this.state = JSON.parse(FS.readFileSync(this.file));
+        this.state = JSON.parse(json);
 		this.wasLoaded = true;
 	}
 	return this.state;

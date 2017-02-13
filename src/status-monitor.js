@@ -93,7 +93,6 @@ class StatusMonitor {
 		};
 
 		this.stateStore = providers.progStateStore;
-		this.stateStore.store({points: {}});
 
 		if (providers.stateChangeHandler) {
 			this.stateChangeHandler = providers.stateChangeHandler;
@@ -117,7 +116,6 @@ class StatusMonitor {
 		this.validateConfig(config);
 		this.config = config;
 		this.initializeAllPoints();
-
 		this.hasReportWithinTimeout = function(pointName, state) {
 			let now = this.time();
 			let pointConfig = this.config.points[pointName];
@@ -126,7 +124,7 @@ class StatusMonitor {
 				return false;
 			}
 			let timeout = ParseDuration(pointConfig.error_period);
-			return pointStatus.lastReport[state].getTime() > now.getTime() - timeout;
+			return new Date(pointStatus.lastReport[state]) > now.getTime() - timeout;
 		};
 	}
 }

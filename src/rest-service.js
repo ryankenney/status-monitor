@@ -31,7 +31,7 @@ class RestService {
 
 			restApp.get('/status-report', function (req, res) {
 				statusMonitor.getStatus();
-				res.end(JSON.stringify(statusMonitor.getStatus()));
+				res.send(JSON.stringify(statusMonitor.getStatus(), null, 2));
 			});
 			restApp.post('/report-status', function (req, res) {
 				try {
