@@ -3,10 +3,15 @@ var StatusMonitor = require('../status-monitor.js');
 var ParseDuration = require('parse-duration')
 var DeepDiff = require('deep-diff')
 
+let stateData = {};
 let mockStateStore = {
-	store: (data) => { this.data = data; },
-	load: () => { return this.data; }
+	store: (data) => { stateData = data; },
+	load: () => { return stateData; }
 };
+
+beforeEach(() => {
+    stateData = { points: {} };
+});
 
 test('StatusMonitor() - Verify fails on missing points.', () => {
 	let config = {
@@ -237,8 +242,11 @@ test('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', 
 	expect(pointStatus.state).toEqual(sm.STATE_ERROR);
 	// ... State change handler called
 	expect(stateChanges[0].pointName).toEqual("mock.point.initial");
-	expect(stateChanges[0].oldState).toEqual(sm.STATE_OK);
-	expect(stateChanges[0].newState).toEqual(sm.STATE_ERROR);
+	expect(stateChanges[0].oldState).toEqual(sm.STATE_INITIAL);
+	expect(stateChanges[0].newState).toEqual(sm.STATE_OK	);
+	expect(stateChanges[1].pointName).toEqual("mock.point.initial");
+	expect(stateChanges[1].oldState).toEqual(sm.STATE_OK);
+	expect(stateChanges[1].newState).toEqual(sm.STATE_ERROR);
 });
 
 test('StatusMonitor.refreshState() - State transitions', () => {

@@ -21,7 +21,7 @@ ProgStateStore.prototype.store = function (state) {
  * copy of the state. This is safe so long as the application is single-threaded,
  * and no other applications modify the file.
  */
-ProgStateStore.prototype.load = function (state) {
+ProgStateStore.prototype.load = function () {
 	if (!this.wasLoaded) {
 		let json = "{ \"points\": {} }";
 		if (FS.existsSync(this.file)) {
