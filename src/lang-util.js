@@ -5,8 +5,19 @@ var LangUtil = {
 		for (var property in object) {
 			// Skip injected prototype properties
 			if (!object.hasOwnProperty(property)) { continue; }
-			handler(property);
+			handler(property, object[property]);
 		}
+	},
+
+	propsToArray: function(object) {
+		let arr = [];
+		for (var property in object) {
+			// Skip injected prototype properties
+			if (!object.hasOwnProperty(property)) { continue; }
+			let value = object[property];
+			arr.push({key: property, value: value});
+		}
+		return arr;
 	},
 
 	// TODO [rkenney]: Figure out how to do this correctly when I have internet.

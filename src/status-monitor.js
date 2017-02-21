@@ -61,7 +61,7 @@ class StatusMonitor {
 			let pointStatus = progState.points[pointName];
 			if (!pointStatus) {
 				progState.points[pointName] = {
-					state: this.STATE_INITIAL,
+					state: StatusMonitor.STATE_INITIAL,
 					lastReport: {
 						"INITIAL": this.time()
 					}
@@ -82,14 +82,6 @@ class StatusMonitor {
 					throw new Error("Config missing 'error_period' for '"+point+"' point.");
 				}
 			});
-			// TODO [rkenney]: Remove if unused
-			// Object.keys(config.points).forEach((point, index) => {
-			// 	if (!config.points[point].error_period) {
-			// 		// TODO [rkenney]: Sanitize this user input before logging
-			// 		// ... to prevent log forging.
-			// 		throw new Error("Config missing 'error_period' for '"+key+"' point.");
-			// 	}
-			// };
 		};
 
 		this.stateStore = providers.progStateStore;
@@ -133,19 +125,19 @@ class StatusMonitor {
  * The state of the point before any status is reported and
  * the point has not timed out.
  */
-StatusMonitor.prototype.STATE_INITIAL = "INITIAL";
+StatusMonitor.STATE_INITIAL = "INITIAL";
 
 /**
  * Indicates that the most recent report was OK and no
  * timeout has triggered since.
  */
-StatusMonitor.prototype.STATE_OK = "OK";
+StatusMonitor.STATE_OK = "OK";
 
 /**
  * Indicates that the most recent report was an Error
  * or a timeout was triggered since the last OK report.
  */
-StatusMonitor.prototype.STATE_ERROR = "ERROR";
+StatusMonitor.STATE_ERROR = "ERROR";
 
 StatusMonitor.prototype.getConfig = function() {
 	return this.config;
@@ -157,12 +149,12 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	let oldState = pointStatus.state;
 
 	switch (report.state) {
-	case this.STATE_OK:
-	case this.STATE_ERROR:
+	case StatusMonitor.STATE_OK:
+	case StatusMonitor.STATE_ERROR:
 		pointStatus.state = report.state;
 		pointStatus.lastReport[report.state] = this.time();
 		break;
-	case this.STATE_INITIAL:
+	case StatusMonitor.STATE_INITIAL:
 		// TODO [rkenney]: Sanitize this user input before logging
 		// ... to prevent log forging.
 		throw new Error("External callers cannot set state of point to '"+report.state+"'");
@@ -208,15 +200,15 @@ StatusMonitor.prototype.refreshTimeouts = function() {
 			return;
 		}
 
-		let newState = this.STATE_ERROR;
-		if (this.hasReportWithinTimeout(point, this.STATE_OK)) {
-			newState = this.STATE_OK;
+		let newState = StatusMonitor.STATE_ERROR;
+		if (this.hasReportWithinTimeout(point, StatusMonitor.STATE_OK)) {
+			newState = StatusMonitor.STATE_OK;
 		} else if (
-			pointStatus.state == this.STATE_INITIAL &&
-			this.hasReportWithinTimeout(point, this.STATE_INITIAL)) {
-			newState = this.STATE_INITIAL;
+			pointStatus.state == StatusMonitor.STATE_INITIAL &&
+			this.hasReportWithinTimeout(point, StatusMonitor.STATE_INITIAL)) {
+			newState = StatusMonitor.STATE_INITIAL;
 		} else {
-			newState = this.STATE_ERROR;
+			newState = StatusMonitor.STATE_ERROR;
 		}
 
 		let oldState = pointStatus.state;
