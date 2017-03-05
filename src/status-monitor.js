@@ -1,45 +1,5 @@
 var ParseDuration = require('parse-duration')
 
-// TODO [rkenney]: Remove sample messages
-/*
-var statusConfig = {
-	points: {
-		"backups.execute.git-repo":{error_period: "1d"},
-		"backups.execute.wiki-repo":{error_period: "1d"},
-		"backups.verify.git-repo":{error_period: "1d"},
-		"backups.verify.wiki-repo":{error_period: "1d"},
-	}
-};
-
-var sampleReport = {
-	name: ["backups","verify","git-repo"],
-	status: "OK"
-};
-
-var sampleReport = {
-	point: ["backups.verify"],
-	instance: ["git-repo"],
-	status: "OK"
-};
-
-
-
-var state = {
-		"backups.execute.git-repo":{
-			lastReportOK: "2016-10-11T12:33:22Z"
-		},
-		"backups.execute.wiki-repo":{
-			lastReportOK: "2016-10-11T12:33:22Z"
-		},
-		"backups.verify.git-repo":{
-		},
-		"backups.verify.wiki-repo":{
-			lastReportOK: "2015-02-11T00:00:00Z"
-		}
-};
-*/
-
-
 // TODO [rkenney]: Load JS6 and use export here
 class StatusMonitor {
 	constructor(providers) {
@@ -89,10 +49,7 @@ class StatusMonitor {
 		if (providers.stateChangeHandler) {
 			this.stateChangeHandler = providers.stateChangeHandler;
 		} else {
-			this.stateChangeHandler = (pointName, oldState, newState) => {
-				let json = {pointName: pointName, oldState: oldState, newState: newState};
-				this.logger("State Changed: "+JSON.stringify(json));
-			};
+			this.stateChangeHandler = (pointName, oldState, newState) => {};
 		}
 		if (providers.time) {
 			this.time = providers.time;
@@ -175,6 +132,8 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	this.logger("Point '"+report.name+"' reported '"+report.state+"'");
 
 	if (oldState != report.state) {
+		let json = {pointName: report.name, oldState: oldState, newState: report.state};
+		this.logger("State Changed: "+JSON.stringify(json));
 		this.stateChangeHandler(report.name, oldState, report.state);
 	}
 };

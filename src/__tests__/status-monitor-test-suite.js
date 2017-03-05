@@ -10,7 +10,7 @@ let mockStateStore = {
 };
 
 beforeEach(() => {
-    stateData = { points: {} };
+	stateData = { points: {} };
 });
 
 test('StatusMonitor() - Verify fails on missing points.', () => {
@@ -130,9 +130,9 @@ test('StatusMonitor.getPointStatus() - Verify initial state of point', () => {
 test('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
-    let stateChangeHandler = (pointName, oldState, newState) => {
-        stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
-    };
+	let stateChangeHandler = (pointName, oldState, newState) => {
+		stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
+	};
 	// Setup
 	let config = {
 		points: {
@@ -156,9 +156,9 @@ test('StatusMonitor.refreshState() - Verify no effect if 0 timeout', () => {
 test('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if within timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
-    let stateChangeHandler = (pointName, oldState, newState) => {
-        stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
-    };
+	let stateChangeHandler = (pointName, oldState, newState) => {
+		stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
+	};
 	// Setup
 	let config = {
 		points: {
@@ -185,9 +185,9 @@ test('StatusMonitor.refreshState() - Verify no transition INITIAL => ERROR if wi
 test('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
-    let stateChangeHandler = (pointName, oldState, newState) => {
-        stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
-    };
+	let stateChangeHandler = (pointName, oldState, newState) => {
+		stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
+	};
 	// Setup
 	let config = {
 		points: {
@@ -216,9 +216,9 @@ test('StatusMonitor.refreshState() - Verify transition INITIAL => ERROR on timeo
 test('StatusMonitor.refreshState() - Verify transition OK => ERROR on timeout', () => {
 	let time = new Date().getTime();
 	let stateChanges = [];
-    let stateChangeHandler = (pointName, oldState, newState) => {
-        stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
-    };
+	let stateChangeHandler = (pointName, oldState, newState) => {
+		stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
+	};
 	// Setup
 	let config = {
 		points: {
@@ -253,9 +253,9 @@ test('StatusMonitor.refreshState() - State transitions', () => {
 	// Setup
 	let time = new Date().getTime();
 	let stateChanges = [];
-    let stateChangeHandler = (pointName, oldState, newState) => {
-        stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
-    };
+	let stateChangeHandler = (pointName, oldState, newState) => {
+		stateChanges.push({pointName: pointName, oldState: oldState, newState: newState});
+	};
 	let config = {
 		points: {
 			"initial.state.no.timeout": {error_period: "0"},
