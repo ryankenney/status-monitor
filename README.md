@@ -53,3 +53,7 @@ Or, you can start a watcher process that responds to source edits:
 	# A Specific Test File
 	node --harmony ./node\_modules/jest-cli/bin/jest.js src/__tests__/yourTestFile.js --watch
 
+License
+----------------
+
+Licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
