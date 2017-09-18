@@ -1,13 +1,49 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Status-Monitor</title>
+<meta charset="UTF-8">
+<title>Status-Monitor</title>
+<script>
+    function onReportStatusSubmit() {
+	    const form = document.getElementsByClassName('report-status-form')[0];
+	    let payload = {name:form.pointName.value, state:form.reportState.value};
+	    let xhr = new XMLHttpRequest();
+	    xhr.open("POST", "/report-status", true);
+	    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+	    xhr.send(JSON.stringify(payload));
+	    xhr.onreadystatechange = () => {
+		    if (xhr.readyState === 4) {
+			    document.getElementsByClassName('report-status-result')[0].innerHTML = xhr.response;
+		    }
+	    }
+    }
+
+</script>
+<script>
+
+</script>
 </head>
+
 <body>
-<h2>Status Report</h2>
+<h2>Get Status Report</h2>
 <p>GET: <a href="/status-report">/status-report</a></p>
-<h2>Report Status</h2>
+
+<h2>Report Point State</h2>
 <p>POST: <a href="/report-status">/report-status</a></p>
+<p>
+<form class="report-status-form">
+Point Name:
+<input name="pointName" type="text" />
+State:
+<select name="reportState">
+    <option value="OK">OK</option>
+    <option value="ERROR">ERROR</option>
+</select>
+</form>
+<button onclick="onReportStatusSubmit()">Submit</button>
+</p>
+<div class="report-status-result" style="background-color: #DDDDDD"></div>
 </body>
+
 </html>

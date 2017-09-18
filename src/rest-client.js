@@ -1,5 +1,4 @@
 var Client = require('node-rest-client').Client;
-var LangUtil = require('./lang-util.js');
 
 class RestClient {
 	constructor(baseUrl, logger) {
