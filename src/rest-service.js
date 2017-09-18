@@ -29,7 +29,7 @@ class RestService {
 			let statusMonitor = this.statusMonitor;
 			let handleRootException = this.handleRootException;
 
-            restApp.use(Express.static('static'));
+			restApp.use(Express.static('static'));
 			restApp.get('/status-report', function (req, res) {
 				statusMonitor.getStatus();
 				res.send(JSON.stringify(statusMonitor.getStatus(), null, 2));
