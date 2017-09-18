@@ -1,5 +1,23 @@
+# OSX Directory Metadata
+.DS_Store
+
+# Elastic Beanstalk CLI Files
+.elasticbeanstalk/*
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Node dependencies
 /node_modules
+
+# Webstorm Project Files
 /.idea
+
+# Test runtime files
 /test-temp
+
+# Runtime files
 /config.json
 /state.json
