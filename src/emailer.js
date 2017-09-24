@@ -22,7 +22,11 @@ class Emailer {
 };
 
 Emailer.prototype.send = function(subject, body) {
-
+	
+	// TODO [rkenney]: Remove temporary hack
+	this.logger('Simulated email [' + subject + '] sent');
+	return;
+	
 	this.gmailSender({
 		subject: subject,
 		text: body
