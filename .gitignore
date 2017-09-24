@@ -20,4 +20,5 @@
 
 # Runtime files
 /config.json
+/passwords.json
 /state.json

@@ -1,5 +1,12 @@
 {
 	"points": {
 		"point-one": { "error_period": "1m" } 
+	},
+	"emailer" {
+		"toAddress": "admin@example.com"
+	},
+	"notifier": {
+		"emailPeriod": "24h"
 	}
+
 }
