@@ -42,7 +42,6 @@ then(() => {
 	let _config = config;
 	let sm = new StatusMonitor({
 		config: () => {
-			console.log("Read Config:\n" + JSON.stringify(_config));
 			return _config;
 		},
 		progStateStore: progState,
@@ -50,11 +49,13 @@ then(() => {
 		logger: logger
 	});
 	new RestService(8081, sm, logger);
-	let emailer = new Emailer(
-		config.emailer.emailAddress,
-		passwords.emailer.username,
-		passwords.emailer.password,
-		logger);
+	let emailer = new Emailer({
+		toAddress: config.notifier.emailToAddress,
+		username: passwords.emailer.username,
+		password: passwords.emailer.password,
+		subjectPrefix: config.notifier.emailSubjectPrefix,
+		logger: logger
+	});
 	let notifier = new SummaryNotifier(() => sm.getStatus().points, () => history.getAndReset(), emailer);
 	
 	// Refresh state of all points periodically

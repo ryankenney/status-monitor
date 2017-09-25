@@ -1,40 +1,32 @@
 let GmailSend = require('gmail-send');
 
 class Emailer {
-	constructor(toAddress, username, password, logger) {
-	    this.toAddress = toAddress;
-		this.transporter = NodeMailer.createTransport({
-			service: 'gmail',
-			auth: {
-				user: username,
-				pass: password
-			}
-		});
-		
+	constructor(config) {
+	    this.toAddress = config.toAddress;
 		this.gmailSender = GmailSend({
-			user: username,
-			pass: password,
-			to: toAddress
+			user: config.username,
+			pass: config.password,
+			to: config.toAddress
 		});
-	    
-	    this.logger = logger;
+		this.subjectPrefix = config.subjectPrefix;
+	    this.logger = config.logger;
     }
 };
 
 Emailer.prototype.send = function(subject, body) {
 	
 	// TODO [rkenney]: Remove temporary hack
-	this.logger('Simulated email [' + subject + '] sent');
-	return;
-	
+	// this.logger('Simulated email [' + subject + '] sent');
+	// return;
+	let _logger = this.logger;
 	this.gmailSender({
-		subject: subject,
+		subject: this.subjectPrefix + subject,
 		text: body
 	}, function (error, response) {
 		if (error) {
-			this.logger(error);
+			_logger(error);
 		} else {
-			this.logger('Email [' + subject + '] sent with response [' + response + ']');
+			_logger('Email [' + this.subjectPrefix + subject + '] sent with response [' + response + ']');
 		}
 	});
 };

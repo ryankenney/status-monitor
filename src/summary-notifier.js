@@ -64,7 +64,13 @@ SummaryNotifier.prototype.sendNotification = function() {
     message += "\n";
     points = this.getPointsErrorHistory();
     message += this.getPointErrorHistoryBody(points);
-    this.emailer.send("Status Summary", message);
+    let subject;
+    if (points.length > 0) {
+        subject = "Status Summary - Errors Present";
+    } else {
+	    subject = "Status Summary - OK";
+    }
+    this.emailer.send(subject, message);
 }
 
 module.exports = SummaryNotifier;

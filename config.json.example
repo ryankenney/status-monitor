@@ -2,11 +2,9 @@
 	"points": {
 		"point-one": { "error_period": "1m" } 
 	},
-	"emailer" {
-		"toAddress": "admin@example.com"
-	},
 	"notifier": {
+		"emailSubjectPrefix": "[status-monitor] "
+		"emailToAddress": "admin@example.com"
 		"emailPeriod": "24h"
 	}
-
 }
