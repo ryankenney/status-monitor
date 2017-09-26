@@ -59,14 +59,16 @@ class SummaryNotifier {
 // TODO [rkenney]: Replace class with Notifier
 
 SummaryNotifier.prototype.sendNotification = function() {
-    let points = this.getCurrentErrorPoints();
-    let message = this.getPointsInErrorBody(points);
+    let currentErrorPoints = this.getCurrentErrorPoints();
+    let message = this.getPointsInErrorBody(currentErrorPoints);
     message += "\n";
-    points = this.getPointsErrorHistory();
-    message += this.getPointErrorHistoryBody(points);
+    let periodErrorPoints = this.getPointsErrorHistory();
+    message += this.getPointErrorHistoryBody(periodErrorPoints);
     let subject;
-    if (points.length > 0) {
-        subject = "Status Summary - Errors Present";
+    if (currentErrorPoints.length > 0) {
+	    subject = "Status Summary - Errors Present";
+    } else if (periodErrorPoints.length > 0) {
+	    subject = "Status Summary - Errors in the Period";
     } else {
 	    subject = "Status Summary - OK";
     }
