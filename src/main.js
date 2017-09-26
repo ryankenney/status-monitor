@@ -7,7 +7,7 @@ let ConfigLoader = require('./config-loader.js');
 let Emailer = require('./emailer.js');
 let SummaryNotifier = require('./summary-notifier.js');
 let request = require("request")
-let ParseDuration = require("parse-duration");
+let NodeCron = require("node-cron");
 
 let config;
 let passwords;
@@ -23,7 +23,7 @@ ConfigLoader.loadConfig().then((c) => {
 
 // Launch server
 then(() => {
-	console.log("Launching with Config:\n" + JSON.stringify(config));
+	console.log("Launching with Config:\n" + JSON.stringify(config, null, '\t'));
 	
 	let logger = (msg) => console.log("[" + JSON.stringify(new Date()) + "] " + msg);
 	let history = new StatusChangeHistory();
@@ -63,11 +63,9 @@ then(() => {
 		sm.refreshTimeouts();
 	}, 5000);
 	
-	// Send daily summary email of any errors
+	// Send "daily" summary email of any errors
 	// TODO [rkenney]: Instead, send a daily email summarizing all other notifications that should have been sent, not just the current errors.
-	setInterval(() => {
-		notifier.sendNotification();
-	}, ParseDuration(config.notifier.emailPeriod));
+	NodeCron.schedule(config.notifier.emailSchedule, () => notifier.sendNotification());
 }).catch(error => {
 	console.trace(error);
 });

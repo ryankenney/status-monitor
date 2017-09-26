@@ -19,6 +19,7 @@
     "express": "^4.14.0",
     "fs-extra": "^1.0.0",
     "gmail-send": "^1.2.11",
+    "node-cron": "^1.2.1",
     "node-rest-client": "^2.0.1",
     "parse-duration": "^0.1.1",
     "promise.prototype.finally": "^2.0.1",

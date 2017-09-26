@@ -3,8 +3,8 @@
 		"point-one": { "error_period": "1m" } 
 	},
 	"notifier": {
-		"emailSubjectPrefix": "[status-monitor] "
-		"emailToAddress": "admin@example.com"
-		"emailPeriod": "24h"
+		"emailSubjectPrefix": "[status-monitor] ",
+		"emailToAddress": "admin@example.com",
+		"emailSchedule": "0 0 8 * * *"
 	}
 }
