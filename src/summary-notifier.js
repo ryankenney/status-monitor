@@ -42,7 +42,7 @@ class SummaryNotifier {
             if (points.length > 0) {
                 message += "=== History of Errors in the Period ===\n";
                 points.forEach((point) => {
-                    message += "" + point.key + ": " + point.value.errorChange + " errors\n";
+                    message += "" + point.key + ": " + point.value.errorChanges + " errors\n";
                 });
             } else {
                 message += "No Errors on Points in the Period\n";

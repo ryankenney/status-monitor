@@ -59,8 +59,8 @@ it("Reports 'History of Errors in the Period' when historical errors reported, r
 		"point-with-invalid": {"state":"XXXX"},
 	};
 	let history = {
-		"point-with-error-history": {errorChange: 1},
-		"point-2-with-error-history": {errorChange: 33}
+		"point-with-error-history": {errorChanges: 1},
+		"point-2-with-error-history": {errorChanges: 33}
 	};
 	let sentEmails = [];
 	let mockEmailer = { send: (subject, body) => sentEmails.push({subject:subject, body:body}) };
