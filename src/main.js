@@ -5,7 +5,7 @@ let ProgStateStore = require('./prog-state-store.js');
 let ProgStateStoreMem = require('./prog-state-store-mem.js');
 let ConfigLoader = require('./config-loader.js');
 let Emailer = require('./emailer.js');
-let SummaryNotifier = require('./summary-notifier.js');
+let Notifier = require('./summary-notifier.js');
 let request = require("request")
 let NodeCron = require("node-cron");
 
@@ -39,16 +39,6 @@ then(() => {
 		progState = new ProgStateStoreMem();
 	}
 	
-	let _config = config;
-	let sm = new StatusMonitor({
-		config: () => {
-			return _config;
-		},
-		progStateStore: progState,
-		stateChangeHandler: (point, oldState, newState) => history.handleStateChange(point, oldState, newState),
-		logger: logger
-	});
-	new RestService(8081, sm, logger);
 	let emailer = new Emailer({
 		toAddress: config.notifier.emailToAddress,
 		username: passwords.emailer.username,
@@ -56,7 +46,21 @@ then(() => {
 		subjectPrefix: config.notifier.emailSubjectPrefix,
 		logger: logger
 	});
-	let notifier = new SummaryNotifier(() => sm.getStatus().points, () => history.getAndReset(), emailer);
+	let notifier = new Notifier(() => sm.getStatus().points, () => history.getAndReset(), emailer);
+	
+	let _config = config;
+	let sm = new StatusMonitor({
+		config: () => {
+			return _config;
+		},
+		progStateStore: progState,
+		stateChangeHandler: (point, oldState, newState, errorReason) => {
+			notifier.sendChangeNotice(point, oldState, newState, errorReason);
+			history.handleStateChange(point, oldState, newState);
+		},
+		logger: logger
+	});
+	new RestService(8081, sm, logger);
 	
 	// Refresh state of all points periodically
 	setInterval(() => {
@@ -65,7 +69,7 @@ then(() => {
 	
 	// Send "daily" summary email of any errors
 	// TODO [rkenney]: Instead, send a daily email summarizing all other notifications that should have been sent, not just the current errors.
-	NodeCron.schedule(config.notifier.emailSchedule, () => notifier.sendNotification());
+	NodeCron.schedule(config.notifier.emailSchedule, () => notifier.sendSummary());
 }).catch(error => {
 	console.trace(error);
 });

@@ -18,7 +18,7 @@ it("Reports 'Points Currently in Error' when points have ERROR state points", ()
 	let mockEmailer = { send: (subject, body) => sentEmails.push({subject:subject, body:body}) };
 
 	// Execute
-	new SummaryNotifier(() => state, () => history, mockEmailer).sendNotification();
+	new SummaryNotifier(() => state, () => history, mockEmailer).sendSummary();
 
 	// Verify (only ERROR points reported)
 	expect(sentEmails.length).toEqual(1);
@@ -42,7 +42,7 @@ it("Reports 'No Points Currently in Error' when no ERROR state points", () => {
 	let mockEmailer = { send: (subject, body) => sentEmails.push({subject:subject, body:body}) };
 
 	// Execute
-	new SummaryNotifier(() => state, () => history, mockEmailer).sendNotification();
+	new SummaryNotifier(() => state, () => history, mockEmailer).sendSummary();
 
 	// Verify (only ERROR points reported)
 	expect(sentEmails.length).toEqual(1);
@@ -66,7 +66,7 @@ it("Reports 'History of Errors in the Period' when historical errors reported, r
 	let mockEmailer = { send: (subject, body) => sentEmails.push({subject:subject, body:body}) };
 
 	// Execute
-	new SummaryNotifier(() => state, () => history, mockEmailer).sendNotification();
+	new SummaryNotifier(() => state, () => history, mockEmailer).sendSummary();
 
 	// Verify (only ERROR points reported)
 	expect(sentEmails.length).toEqual(1);

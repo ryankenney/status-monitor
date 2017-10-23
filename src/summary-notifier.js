@@ -1,7 +1,7 @@
 const StatusMonitor = require("./status-monitor.js");
 const LangUtil = require("./lang-util.js");
 
-class SummaryNotifier {
+class Notifier {
 	constructor(currentStateProvider, errorHistoryProvider, emailer) {
 
         this.getCurrentErrorPoints = function () {
@@ -56,23 +56,35 @@ class SummaryNotifier {
     }
 };
 
-// TODO [rkenney]: Replace class with Notifier
-
-SummaryNotifier.prototype.sendNotification = function() {
-    let currentErrorPoints = this.getCurrentErrorPoints();
-    let message = this.getPointsInErrorBody(currentErrorPoints);
-    message += "\n";
-    let periodErrorPoints = this.getPointsErrorHistory();
-    message += this.getPointErrorHistoryBody(periodErrorPoints);
-    let subject;
-    if (currentErrorPoints.length > 0) {
-	    subject = "Status Summary - Errors Present";
-    } else if (periodErrorPoints.length > 0) {
-	    subject = "Status Summary - Errors in the Period";
-    } else {
-	    subject = "Status Summary - OK";
-    }
-    this.emailer.send(subject, message);
+Notifier.prototype.sendSummary = function() {
+	let currentErrorPoints = this.getCurrentErrorPoints();
+	let message = this.getPointsInErrorBody(currentErrorPoints);
+	message += "\n";
+	let periodErrorPoints = this.getPointsErrorHistory();
+	message += this.getPointErrorHistoryBody(periodErrorPoints);
+	let subject;
+	if (currentErrorPoints.length > 0) {
+		subject = "Status Summary - Errors Present";
+	} else if (periodErrorPoints.length > 0) {
+		subject = "Status Summary - Errors in the Period";
+	} else {
+		subject = "Status Summary - OK";
+	}
+	this.emailer.send(subject, message);
 }
 
-module.exports = SummaryNotifier;
+Notifier.prototype.sendChangeNotice = function(pointName, oldState, newState, errorReason) {
+    let subject;
+    let message = "";
+	if (newState === StatusMonitor.STATE_ERROR && oldState !== StatusMonitor.STATE_ERROR) {
+	    subject = "Point Failure: "+pointName;
+		message += "=== Cause ===\n"+errorReason;
+    } else if (newState === StatusMonitor.STATE_OK && oldState === StatusMonitor.STATE_ERROR) {
+		subject = "Point Repaired: "+pointName;
+    } else {
+	    return;
+    }
+	this.emailer.send(subject, message);
+}
+
+module.exports = Notifier;

@@ -49,7 +49,7 @@ class StatusMonitor {
 		if (providers.stateChangeHandler) {
 			this.stateChangeHandler = providers.stateChangeHandler;
 		} else {
-			this.stateChangeHandler = (pointName, oldState, newState) => {};
+			this.stateChangeHandler = (pointName, oldState, newState, errorReason) => {};
 		}
 		if (providers.time) {
 			this.time = providers.time;
@@ -134,6 +134,7 @@ StatusMonitor.prototype.reportStatus = function (report) {
 	if (oldState != report.state) {
 		let json = {pointName: report.name, oldState: oldState, newState: report.state};
 		this.logger("State Changed: "+JSON.stringify(json));
+		// TODO [rkenney]: Add support for "errorReason" to REST API, and pass here
 		this.stateChangeHandler(report.name, oldState, report.state);
 	}
 };
@@ -174,7 +175,11 @@ StatusMonitor.prototype.refreshTimeouts = function() {
 		pointStatus.state = newState;
 
 		if (newState != oldState) {
-			this.stateChangeHandler(point, oldState, newState);
+			let errorReason = "";
+			if (newState == StatusMonitor.STATE_ERROR) {
+				errorReason = "Timed out";
+			}
+			this.stateChangeHandler(point, oldState, newState, errorReason);
 		}
 	});
 };
